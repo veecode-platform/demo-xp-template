@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ${{ values.name }}
-          image: ghcr.io/${{ values.destination.owner }}/${{ values.name }}:latest
+          image: IMAGE_PLACEHOLDER
           ports:
             - containerPort: ${{ values.port }}
           env:

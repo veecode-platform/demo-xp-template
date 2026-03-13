@@ -15,7 +15,7 @@ spec:
         app: ${{ values.name }}
     spec:
       imagePullSecrets:
-        - name: ghcr-credentials
+        - name: dockerhub-credentials
       containers:
         - name: ${{ values.name }}
           image: IMAGE_PLACEHOLDER

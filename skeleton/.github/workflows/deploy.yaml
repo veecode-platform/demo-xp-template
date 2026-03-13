@@ -54,6 +54,13 @@ jobs:
             --from-literal=port=${{ "${{ secrets.DB_PORT }}" }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Grant database permissions
+        run: |
+          sudo apt-get install -y -qq postgresql-client > /dev/null
+          PGPASSWORD=${{ "${{ secrets.DOADMIN_PASSWORD }}" }} psql \
+            "host=${{ "${{ secrets.DB_HOST }}" }} port=${{ "${{ secrets.DB_PORT }}" }} dbname=${{ values.name }} user=doadmin sslmode=require" \
+            -c "GRANT ALL ON SCHEMA public TO \"${{ values.name }}-user\"; GRANT ALL ON ALL TABLES IN SCHEMA public TO \"${{ values.name }}-user\"; ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"${{ values.name }}-user\";"
+
       - name: Deploy to Kubernetes
         run: |
           sed -i "s|IMAGE_PLACEHOLDER|${{ "${{ env.IMAGE }}" }}:${{ "${{ github.sha }}" }}|g" k8s/deployment.yaml

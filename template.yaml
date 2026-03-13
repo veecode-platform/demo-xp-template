@@ -94,6 +94,9 @@ spec:
         description: ${{ parameters.description }}
         repoVisibility: public
         defaultBranch: main
+        topics:
+          - demo
+          - backstage
 
     - id: register
       name: Register in Catalog

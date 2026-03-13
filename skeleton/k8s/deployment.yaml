@@ -5,6 +5,7 @@ metadata:
   labels:
     app: ${{ values.name }}
     vee.codes/cluster: local
+    backstage.io/kubernetes-id: ${{ values.name }}
 spec:
   replicas: 1
   selector:
@@ -15,6 +16,7 @@ spec:
       labels:
         app: ${{ values.name }}
         vee.codes/cluster: local
+        backstage.io/kubernetes-id: ${{ values.name }}
     spec:
       imagePullSecrets:
         - name: dockerhub-credentials

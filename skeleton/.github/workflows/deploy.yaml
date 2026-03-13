@@ -57,17 +57,22 @@ jobs:
       - name: Apply database resources
         run: kubectl apply -f k8s/database.yaml
 
-      - name: Wait for Crossplane user to be ready
-        run: |
-          echo "Waiting for Crossplane user to be ready..."
-          kubectl wait --for=condition=Ready user.database.digitalocean.crossplane.io/${{ values.name }}-user --timeout=300s
-
-      - name: Grant database permissions
+      - name: Wait for database user and grant permissions
         run: |
           sudo apt-get install -y -qq postgresql-client > /dev/null
-          PGPASSWORD=${{ "${{ secrets.DOADMIN_PASSWORD }}" }} psql \
-            "host=${{ "${{ secrets.DB_HOST }}" }} port=${{ "${{ secrets.DB_PORT }}" }} dbname=${{ values.name }} user=doadmin sslmode=require" \
-            -c "GRANT ALL ON SCHEMA public TO \"${{ values.name }}-user\"; GRANT ALL ON ALL TABLES IN SCHEMA public TO \"${{ values.name }}-user\"; ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"${{ values.name }}-user\";"
+          for i in $(seq 1 30); do
+            if kubectl get secret ${{ values.name }}-db-credentials >/dev/null 2>&1; then
+              echo "User credentials secret found, granting permissions..."
+              PGPASSWORD=${{ "${{ secrets.DOADMIN_PASSWORD }}" }} psql \
+                "host=${{ "${{ secrets.DB_HOST }}" }} port=${{ "${{ secrets.DB_PORT }}" }} dbname=${{ values.name }} user=doadmin sslmode=require" \
+                -c "GRANT ALL ON SCHEMA public TO \"${{ values.name }}-user\"; GRANT ALL ON ALL TABLES IN SCHEMA public TO \"${{ values.name }}-user\"; ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"${{ values.name }}-user\";" \
+                && exit 0
+            fi
+            echo "Attempt $i/30: waiting for user credentials secret..."
+            sleep 10
+          done
+          echo "Timed out waiting for database user"
+          exit 1
 
       - name: Deploy application
         run: |

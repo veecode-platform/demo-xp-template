@@ -47,6 +47,13 @@ jobs:
             --docker-password=${{ "${{ secrets.DOCKER_PASSWORD }}" }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Create database connection secret
+        run: |
+          kubectl create secret generic db-conn \
+            --from-literal=host=${{ "${{ secrets.DB_HOST }}" }} \
+            --from-literal=port=${{ "${{ secrets.DB_PORT }}" }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy to Kubernetes
         run: |
           sed -i "s|IMAGE_PLACEHOLDER|${{ "${{ env.IMAGE }}" }}:${{ "${{ github.sha }}" }}|g" k8s/deployment.yaml

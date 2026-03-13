@@ -4,6 +4,7 @@ metadata:
   name: ${{ values.name }}
   labels:
     app: ${{ values.name }}
+    vee.codes/cluster: local
 spec:
   replicas: 1
   selector:
@@ -13,6 +14,7 @@ spec:
     metadata:
       labels:
         app: ${{ values.name }}
+        vee.codes/cluster: local
     spec:
       imagePullSecrets:
         - name: dockerhub-credentials

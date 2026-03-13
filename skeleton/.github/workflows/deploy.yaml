@@ -44,6 +44,14 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ "${{ secrets.KUBECONFIG }}" }}" | base64 -d > $HOME/.kube/config
 
+      - name: Create image pull secret
+        run: |
+          kubectl create secret docker-registry ghcr-credentials \
+            --docker-server=ghcr.io \
+            --docker-username=${{ "${{ github.actor }}" }} \
+            --docker-password=${{ "${{ secrets.GITHUB_TOKEN }}" }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy to Kubernetes
         run: |
           sed -i "s|IMAGE_PLACEHOLDER|${{ "${{ env.IMAGE }}" }}:${{ "${{ github.sha }}" }}|g" k8s/deployment.yaml

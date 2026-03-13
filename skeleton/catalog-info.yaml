@@ -5,7 +5,7 @@ metadata:
   description: ${{ values.description }}
   annotations:
     github.com/project-slug: ${{ values.repoOwner }}/${{ values.repoName }}
-    backstage.io/kubernetes-id: ${{ values.name }}
+    backstage.io/kubernetes-label-selector: "vee.codes/app=${{ values.name }}"
 spec:
   type: service
   lifecycle: experimental

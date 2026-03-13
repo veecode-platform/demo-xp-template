@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ${{ values.name }}
     vee.codes/cluster: local
-    backstage.io/kubernetes-id: ${{ values.name }}
+    vee.codes/app: ${{ values.name }}
 spec:
   type: ClusterIP
   ports:

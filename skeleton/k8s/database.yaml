@@ -1,0 +1,30 @@
+{%- if values.needsDatabase %}
+apiVersion: database.digitalocean.crossplane.io/v1alpha1
+kind: DB
+metadata:
+  name: ${{ values.name }}-db
+  labels:
+    app: ${{ values.name }}
+    vee.codes/cluster: local
+spec:
+  forProvider:
+    name: ${{ values.name }}
+    clusterIdRef:
+      name: postgres-demo
+  providerConfigRef:
+    name: default
+---
+apiVersion: database.digitalocean.crossplane.io/v1alpha1
+kind: User
+metadata:
+  name: ${{ values.name }}-user
+  labels:
+    app: ${{ values.name }}
+    vee.codes/cluster: local
+spec:
+  forProvider:
+    clusterIdRef:
+      name: postgres-demo
+  providerConfigRef:
+    name: default
+{%- endif %}

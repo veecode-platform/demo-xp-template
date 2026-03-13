@@ -50,6 +50,13 @@ spec:
           default: 3000
           description: Port the application will listen on
 
+    - title: Database
+      properties:
+        needsDatabase:
+          title: Create a database?
+          type: boolean
+          default: false
+
     - title: Repository Location
       required:
         - repoUrl
@@ -75,6 +82,7 @@ spec:
           port: ${{ parameters.port }}
           repoOwner: ${{ (parameters.repoUrl | parseRepoUrl).owner }}
           repoName: ${{ (parameters.repoUrl | parseRepoUrl).repo }}
+          needsDatabase: ${{ parameters.needsDatabase }}
 
     - id: publish
       name: Publish to GitHub

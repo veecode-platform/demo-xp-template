@@ -22,6 +22,9 @@ metadata:
     app: ${{ values.name }}
     vee.codes/cluster: local
 spec:
+  writeConnectionSecretToRef:
+    name: ${{ values.name }}-db-credentials
+    namespace: default
   forProvider:
     clusterIdRef:
       name: postgres-demo

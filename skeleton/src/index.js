@@ -1,6 +1,8 @@
 const express = require('express');
 {%- if values.needsDatabase %}
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -10,6 +12,20 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   ssl: { rejectUnauthorized: false },
 });
+
+async function runMigrations() {
+  const migrationsDir = path.join(__dirname, 'migrations');
+  const files = fs.readdirSync(migrationsDir)
+    .filter(f => f.endsWith('.sql'))
+    .sort();
+
+  for (const file of files) {
+    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+    console.log(`Running migration: ${file}`);
+    await pool.query(sql);
+    console.log(`Migration complete: ${file}`);
+  }
+}
 {%- endif %}
 
 const app = express();
@@ -45,8 +61,22 @@ app.get('/db/status', async (_req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.get('/db/items', async (_req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM items ORDER BY id');
+    res.json({ items: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 {%- endif %}
 
 app.listen(port, () => {
   console.log(`${{ values.name }} listening on port ${port}`);
+{%- if values.needsDatabase %}
+  runMigrations().catch(err => {
+    console.error('Migration failed:', err.message);
+  });
+{%- endif %}
 });

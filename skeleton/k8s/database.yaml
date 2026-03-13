@@ -7,6 +7,9 @@ metadata:
     app: ${{ values.name }}
     vee.codes/cluster: local
 spec:
+  writeConnectionSecretToRef:
+    name: ${{ values.name }}-db-conn
+    namespace: default
   forProvider:
     name: ${{ values.name }}
     clusterIdRef:

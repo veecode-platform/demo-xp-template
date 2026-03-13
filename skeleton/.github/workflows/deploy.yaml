@@ -60,7 +60,7 @@ jobs:
       - name: Wait for Crossplane user to be ready
         run: |
           echo "Waiting for Crossplane user to be ready..."
-          kubectl wait --for=condition=Ready user/${{ values.name }}-user --timeout=300s
+          kubectl wait --for=condition=Ready user.database.digitalocean.crossplane.io/${{ values.name }}-user --timeout=300s
 
       - name: Grant database permissions
         run: |

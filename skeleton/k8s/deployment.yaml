@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${{ values.name }}
+  labels:
+    app: ${{ values.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${{ values.name }}
+  template:
+    metadata:
+      labels:
+        app: ${{ values.name }}
+    spec:
+      containers:
+        - name: ${{ values.name }}
+          image: ghcr.io/${{ values.destination.owner }}/${{ values.name }}:latest
+          ports:
+            - containerPort: ${{ values.port }}
+          env:
+            - name: PORT
+              value: "${{ values.port }}"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: ${{ values.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: ${{ values.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
